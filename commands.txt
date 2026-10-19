@@ -1,0 +1,3 @@
+python process.py --config configs\nsf_hifigan_fast.yaml --num_cpu 4  --strx 0
+
+python train.py --config configs\nsf_hifigan_fast.yaml --exp_name vocoder --work_dir output

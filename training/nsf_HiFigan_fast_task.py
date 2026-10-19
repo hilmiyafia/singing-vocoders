@@ -337,6 +337,9 @@ class nsf_HiFigan(GanBaseTask):
         return (mrd_out, mrd_feature), (mpd_out, mpd_feature)
     
     def D2forward(self, audio_fake, audio_true):
+        min_dim = min(audio_fake.shape[-1], audio_true.shape[-1])
+        audio_fake = audio_fake[..., :min_dim]
+        audio_true = audio_true[..., :min_dim]
         audio = torch.cat([audio_fake, audio_true], dim=0)
         
         mrd_out, mrd_feature = self.discriminator['mrd'](audio)
@@ -397,8 +400,10 @@ class nsf_HiFigan(GanBaseTask):
         log_dict.update(GDlog)
         if pc_aug:
             pc_wav_loss = F.l1_loss(Goutput['audio_shift_ab'], Goutput['audio_shift_c']) * 30
-            sample = {'audio': torch.cat((sample['audio'], Goutput['audio_shift_c']), dim=0)}
-            Goutput = {'audio': torch.cat((Goutput['audio'], Goutput['audio_shift_ab']), dim=0)}
+            min_dim = min(sample['audio'].shape[-1], Goutput['audio_shift_c'].shape[-1])
+            sample = {'audio': torch.cat((sample['audio'][..., :min_dim], Goutput['audio_shift_c'][..., :min_dim]), dim=0)}
+            min_dim = min(Goutput['audio'].shape[-1], Goutput['audio_shift_ab'].shape[-1])
+            Goutput = {'audio': torch.cat((Goutput['audio'][..., :min_dim], Goutput['audio_shift_ab'][..., :min_dim]), dim=0)}
             log_dict['pc_wav_loss'] = pc_wav_loss
         else:
             pc_wav_loss = 0

@@ -1,6 +1,6 @@
 import librosa
 import numpy as np
-import parselmouth
+# import parselmouth
 import pyworld as pw
 import torch
 

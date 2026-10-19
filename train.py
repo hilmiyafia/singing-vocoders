@@ -29,6 +29,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 @click.option('--exp_name', required=True, metavar='EXP', help='Name of the experiment')
 @click.option('--work_dir', required=False, metavar='DIR', help='Directory to save the experiment')
 def train(config, exp_name, work_dir):
+    _train(config, exp_name, work_dir, True)
+
+def _train(config, exp_name, work_dir, do_train):
     config = pathlib.Path(config)
     config = read_full_config(config)
     print_config(config)
@@ -101,7 +104,10 @@ def train(config, exp_name, work_dir):
         num_sanity_val_steps=config['num_sanity_val_steps'],
         # accumulate_grad_batches=config['accumulate_grad_batches']
     )
-    trainer.fit(task, ckpt_path=get_latest_checkpoint_path(work_dir))
+    if do_train:
+        trainer.fit(task, ckpt_path=get_latest_checkpoint_path(work_dir))
+    else:
+        return task
 
 
 os.environ['TORCH_CUDNN_V8_API_ENABLED'] = '1'  # Prevent unacceptable slowdowns when using 16 precision
